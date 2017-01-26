@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Simple markers</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            height: 100%;
+        }
+    </style>
+    <style type="text/css">
+        body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td {
+            margin: 0;
+            padding: 0;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        fieldset, img {
+            border: 0;
+        }
+
+        address, caption, cite, code, dfn, em, strong, th, var {
+            font-style: normal;
+            font-weight: normal;
+        }
+
+        ol, ul {
+            list-style: none;
+        }
+
+        caption, th {
+            text-align: left;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-size: 100%;
+        }
+
+        q:before, q:after {
+            content: '';
+        }
+
+        abbr, acronym {
+            border: 0;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Common 定义基本样式 */
+        body {
+            font: 12px/1.8 'Microsoft Yahei', 'Helvetica Neue', Helvetica, Arial, Sans-serif;
+            padding: 0;
+            margin: 0;
+            color: #333333;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        #loading {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            z-index: 999;
+            background: url("http://lukesign.qiniudn.com/images/site/loading.gif") no-repeat center center #FFFAD1;
+            top: 0;
+            left: 0;
+            text-align: center;
+            line-height: 300px;
+            font-size: 32px;
+            color: #666;
+        }
+
+        #theEnd {
+            height: 0%;
+            width: 100%;
+            line-height: 0;
+            font-size: 0;
+            overflow: hidden;
+            position: absolute;
+            z-index: 999;
+            background-color: #FFFAD1;
+            top: 0;
+            left: 0;
+        }
+
+        #theEndText {
+            position: absolute;
+            left: 0;
+            z-index: 9999;
+            width: 100%;
+            text-align: center;
+            font-size: 26px;
+            line-height: 2;
+            top: 50%;
+            margin-top: -100px;
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+<div id="loading">loading now :)</div>
+<div id="theEnd"></div>
+<div id="map"></div>
+
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="jquery.wshare.js"></script>
+<script type="text/javascript" src="sm/soundmanager2-nodebug-jsmin.js"></script>
+<script type="text/javascript">
+    (function (a, b) {
+        "use strict";
+        var c = function () {
+            var a = [["requestFullscreen", "exitFullscreen", "fullscreenchange", "fullscreen", "fullscreenElement"], ["webkitRequestFullScreen", "webkitCancelFullScreen", "webkitfullscreenchange", "webkitIsFullScreen", "webkitCurrentFullScreenElement"], ["mozRequestFullScreen", "mozCancelFullScreen", "mozfullscreenchange", "mozFullScreen", "mozFullScreenElement"]];
+            for (var c = 0, d = a.length; c < d; c++) {
+                var e = a[c];
+                if (e[1] in b)return e
+            }
+        }();
+        if (!c)return a.screenfull = !1;
+        var d = "ALLOW_KEYBOARD_INPUT" in Element, e = {
+            init: function () {
+                return b.addEventListener(c[2], function (a) {
+                    e.isFullscreen = b[c[3]], e.element = b[c[4]], e.onchange(a)
+                }), this
+            }, isFullscreen: b[c[3]], element: b[c[4]], request: function (a) {
+                a = a || b.documentElement, a[c[0]](d && Element.ALLOW_KEYBOARD_INPUT), b.isFullscreen || a[c[0]]()
+            }, exit: function () {
+                b[c[1]]()
+            }, toggle: function (a) {
+                this.isFullscreen ? this.exit() : this.request(a)
+            }, onchange: function () {
+            }
+        };
+        a.screenfull = e.init()
+    })(window, document)
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBilKymbLdhk3tIUk55sVmGH1dHpz7SrYc">
+</script>
+<script>
+    var MUSIC;
+    var map;
+    var marker;
+    var firstLatLng = {lat: 34.2209855, lng:106.9600759};
+    var closerLatLng = {lat: 27.5528073, lng:112.099671};
+    var CDLatLng = {lat: 30.6586, lng: 104.0647};
+    var GZLatLng = {lat: 23.1333, lng: 113.2667};
+    var GNVLatLng = {lat:29.6520,lng:-82.3250};
+    var CDKLatLng = {lat:29.144136, lng:-83.041978};
+    var TMPLatLng = {lat:27.949503, lng:-82.459703};
+    var SRSTLatLng = {lat:27.337697, lng: -82.533530};
+    var USEastLatLng = {lat:35.5105019,lng:-82.508034};
+    var USLatLng = {lat:38.0898382, lng:-95.1186979};
+    var ATLLatLng = {lat:33.781157,lng: -84.371513};
+    var CHILatLng = {lat:41.861014, lng:-87.619586};
+    var imageList = [
+            'images/10299027_10202562096746905_639937880363337586_n.jpg',
+            'images/10171811_10202562075626377_2969988989035002964_n.jpg',
+            'images/IMG_1254.JPG',
+            'images/IMG_1339.JPG',
+            'images/IMG_1314.JPG',
+            'images/IMG_1329.JPG',
+            'images/IMG_1343.JPG',
+            'images/IMG_1374.JPG',
+            'images/IMG_1389.JPG',
+            'images/IMG_1393.JPG',
+            'images/IMG_1394.JPG',
+            'images/IMG_1411.JPG',
+            'images/IMG_1414.JPG',
+            'images/IMG_1451.JPG',
+            'images/IMG_1456.JPG',
+            'images/IMG_1459.JPG',
+            'images/IMG_1466.JPG',
+            'images/IMG_1506.JPG',
+            'images/IMG_1517.JPG',
+            'images/IMG_1581.JPG',
+            'images/IMG_1620.JPG',
+            'images/IMG_1626.JPG'
+    ];
+
+    var GNVList1 =[
+        {
+            point:GNVLatLng,
+            content:'<h1>毕业啦！！！！</h1><img src="images/10299027_10202562096746905_639937880363337586_n.jpg" width="320" height="213"  />'
+        },
+        {
+            point:GNVLatLng,
+            content:'<h1>毕业啦</h1><img src="images/10171811_10202562075626377_2969988989035002964_n.jpg" width="320" height="213"/>'
+        },
+        {
+            point:GNVLatLng,
+            content:'<h1>然后我们就耍朋友啦，嘻嘻 :)</h1><img src="images/IMG_1254.JPG" width="245" height="327"/>',
+        },
+        {
+            point:CDKLatLng,
+            content:'<h2>Cedar Key</h2><img src="images/IMG_1339.JPG" width="249" height="327"/>'
+        },
+        {
+            point:CDKLatLng,
+            content:'<img src="images/IMG_1314.JPG" width="320" height="427"/>'
+        },
+        {
+            point:CDKLatLng,
+            content:'<img src="images/IMG_1329.JPG" width="320" height="427"/>'
+        },
+        {
+            point:CDKLatLng,
+            content:'<img src="images/IMG_1343.JPG" width="320" height="427"/>'
+        },
+        {
+            point:CDKLatLng,
+            content:'<img src="images/IMG_1374.JPG" width="326" height="245"/>'
+        },
+        {
+            point:TMPLatLng,
+            content:'<h1>Bush Garden</h1><img src="images/IMG_1389.JPG" with="320" height="240"/>'
+        },
+        {
+            point:TMPLatLng,
+            content:'<img src="images/IMG_1393.JPG" with="306" height="408"/>'
+        },
+        {
+            point:TMPLatLng,
+            content:'<img src="images/IMG_1394.JPG" with="306" height="408"/>'
+        },
+        {
+            point:TMPLatLng,
+            content:'<h1>玩耍中。。。。</h1><img src="images/IMG_1411.JPG" with="306" height="408"/>'
+        },
+        {
+            point:TMPLatLng,
+            content:'<img src="images/IMG_1414.JPG" with="320" height="420"/>'
+        },
+        {
+            point:SRSTLatLng,
+            content:'<h1>海滩奔跑啊</h1><img src="images/IMG_1451.JPG" with="306" height="408"/>'
+        },
+        {
+            point:SRSTLatLng,
+            content:'<h1>飞起来了</h1><img src="images/IMG_1456.JPG" with="306" height="408"/>'
+        },
+        {
+            point:SRSTLatLng,
+            content:'<img src="images/IMG_1459.JPG" with="408" height="306"/>'
+        },
+        {
+            point:SRSTLatLng,
+            content:'<img src="images/IMG_1466.JPG"  with="306" height="408"/> '
+        },
+        {
+            point:GNVLatLng,
+            content:'<h1>搵吃中。。。。。别打扰我</h1><img src="images/IMG_1506.JPG" with="408" height="306"/>'
+        },
+        {
+            point:GNVLatLng,
+            content:'<h1>搞掂！</h1><img src="images/IMG_1517.JPG" with="408" height="306"/>'
+        },
+        {
+            point:GNVLatLng,
+            content:'<img src="images/IMG_1581.JPG" with="408" height="306"/>'
+        },
+        {
+            point:GNVLatLng,
+            content:'<img src="images/IMG_1620.JPG" with="408" height="306"/>'
+        },
+        {
+            point:GNVLatLng,
+            content:'<img src="images/IMG_1626.JPG" with="408" height="306"/>'
+        }
+    ];
+    var ATLList1=[
+        {
+            point:GNVLatLng,
+            content:'<h1>然后我们去了Atlanta</h1>'
+        },
+        {
+            point:ATLLatLng,
+            content:'<h1>我们彷徨，不安</h1><img src="images/IMG_1771.JPG" with="408" height="306" />'
+        },
+        {
+            point:ATLLatLng,
+            content:'<img src="images/IMG_1774.JPG" with="408" height="306" />'
+        },
+        {
+            point:ATLLatLng,
+            content:'<h1>可是我们有破罐子破摔的精神!</h1><img src="images/IMG_1804.JPG" with="408" height="306" />'
+        },
+        {
+            point:ATLLatLng,
+            content:'<img src="images/IMG_1882.JPG" with="360" height="480"/>'
+        },
+        {
+            point: ATLLatLng,
+            content: '<h1>老婆！！</h1><img src="images/IMG_3896.JPG" with="408"  height="308"/>'
+        },
+        {
+            point:GNVLatLng,
+            content:'<h1>中间你回去Florida工作</h1><img src="images/IMG_1884.JPG" with="308" height="408" />'
+        }
+    ];
+    var GNSList2=[
+        {
+            point:GNVLatLng,
+            content:'<h1>大毛</h1><img src="images/IMG_1810.JPG" with="300" height="400"/> '
+        },
+        {
+            point:ATLLatLng,
+            content:'<h1>大毛</h1><img src="images/IMG_1833.JPG" with="320" height="426"/> '
+        },
+        {
+            point:TMPLatLng,
+            content:'<img src="images/IMG_2080.JPG" with="320" height="426"/> '
+        },
+        {
+            point:ATLLatLng,
+            content:'<img src="images/IMG_2137.JPG" with="306" height="408" />'
+        },
+        {
+            point:ATLLatLng,
+            content:'<img src="images/IMG_1940.JPG" with="306" height="408" />'
+        },
+        {
+            point:ATLLatLng,
+            content:'<img src="images/IMG_1971.JPG" with="320" height="240" />'
+        },
+        {
+            point:GNVLatLng,
+            content:'<img src="images/IMG_2046.JPG" with="306" height="408" />'
+        },
+        {
+            point:ATLLatLng,
+            content:'<h1>老婆回来啦</h1><img src="images/IMG_2234.JPG" with="306" height="408"/>'
+        },
+        {
+            point:CHILatLng,
+            content:'<h1>我们会去更多地方玩的</h1><img src="images/IMG_2604.JPG" width="240" height="320"/>'
+        },
+        {
+            point:CHILatLng,
+            content:'<img src="images/IMG_2605.JPG" width="408" height="306"/>'
+        },
+        {
+            point:CHILatLng,
+            content:'<img src="images/IMG_2611.JPG" width="240" height="320"/>'
+        },
+        {
+            point:CHILatLng,
+            content:'<img src="images/IMG_2656.JPG" width="240" height="320"/>'
+        },
+        {
+            point:ATLLatLng,
+            content:'<img src="images/IMG_2962.JPG" width="408" height="306"/>'
+        }
+    ];
+
+    function zoomTo(zoom, time, callback, point) {
+        var time = time || 1000;
+        var callback = callback || function () {
+                };
+        var loop = '';
+
+        function loopZoom() {
+            var curZoom = map.getZoom();
+            if (curZoom == zoom) {
+                clearTimeout(loop);
+                callback();
+                return false;
+            }
+            var plus = curZoom > zoom ? -1 : 1;
+            var toZoom = curZoom + plus;
+            map.setZoom(toZoom);
+            if (point) {
+                map.setCenter(new google.maps.LatLng(point));
+            }
+            var center = map.getCenter();
+            loop = setTimeout(loopZoom, time);
+        }
+        loopZoom();
+    }
+
+    function loopWin(loopList, time,callback) {
+        var i = 0;
+        var len = loopList.length;
+        var callback = callback || function () {
+                };
+        var timeout = '';
+
+        function loopWinInner() {
+            if (i == len) {
+                clearTimeout(timeout);
+                setTimeout(callback, 1000);
+                return false;
+            }
+
+            var opts = {
+                content:loopList[i].content,
+                position:loopList[i].point,
+                maxWidth: 600
+            }
+            var infoWindow = new google.maps.InfoWindow(opts);
+            infoWindow.open(map);
+            setTimeout(function(){infoWindow.close();},2000)
+            i++;
+            if (loopList[i]) {
+                var time = loopList[i].timeout || 2000;
+            } else {
+                var time = 2000;
+            }
+            timeout = setTimeout(loopWinInner, time);
+        }
+
+        loopWinInner();
+    }
+
+    function showPhotos(point,list){
+        setTimeout(function(){
+            zoomTo(5,2000,function(){
+                loopWin(list,2000);
+            }, point);
+        })
+    }
+    window.onload = function(){
+        soundManager.setup({
+            onready: initMusic
+        });
+        function initMusic(){
+            MUSIC = soundManager.createSound({
+                id: 'mp3',
+                url: './myWord.mp3',
+                onload: function () {
+                    var loading = document.getElementById('loading');
+                    loading.style.cursor = 'pointer';
+                    loading.innerHTML = '点击开始';
+                    loading.onclick = function () {
+                        screenfull && screenfull.request();
+                        initMap();
+                    }
+                }
+            });
+            MUSIC.load();
+        }
+    };
+    function begin(){
+        soundManager.setup({
+            onready: initMusic
+        });
+        function initMusic(){
+            MUSIC = soundManager.createSound({
+                id: 'mp3',
+                url: './myWord.mp3',
+                onload: function () {
+                    preLoadImages(imageList,function(){
+                        var loading = document.getElementById('loading');
+                        loading.style.cursor = 'pointer';
+                        loading.innerHTML = '点击开始';
+                        loading.onclick = function () {
+                            screenfull && screenfull.request();
+                            initMap();
+                        }
+                    })
+                }
+            });
+            MUSIC.load();
+        }
+    }
+
+
+    function initMap() {
+
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('theEnd').style.height = '0';
+        document.getElementById('theEnd').innerHTML = '';
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 4,
+            center: firstLatLng
+        });
+//        map.setOptions({draggable: false, zoomControl: false, scrollwheel: false, disableDoubleClickZoom: true});
+        MUSIC.play();
+        setTimeout(function(){
+            map.setZoom(5);
+            map.setCenter(new google.maps.LatLng(closerLatLng));
+        }, 2000);
+        zoomToCD();
+    }
+
+    function  zoomToCD(){
+        var closerLatLng = {lat: 27.5528073, lng:112.099671};
+        setTimeout(function () {
+            zoomTo(6, 2000, function () {
+                var marker = new google.maps.Marker({map:map,animation:google.maps.Animation.BOUNCE, position:CDLatLng});
+                setTimeout(function(){
+                    markerGZ = new google.maps.Marker({map:map,animation:google.maps.Animation.BOUNCE, position:GZLatLng});
+                    setTimeout(zoomToCHN, 1500);
+                },1500);
+            }, closerLatLng);
+        }, 2000);
+    }
+
+    function zoomToCHN(){
+        zoomTo(4, 2000, function(){
+            setTimeout(zoomToGNV, 1500);
+        })
+
+    }
+    function  zoomToGNV(){
+        map.panTo(new google.maps.LatLng(USLatLng));
+        setTimeout(function(){
+            zoomTo(10, 1500, function(){
+                var markerGNS = new google.maps.Marker({map:map,animation:google.maps.Animation.BOUNCE, position:GNVLatLng});
+                setTimeout(function(){
+                    map.setZoom(8);
+                    setTimeout(function(){
+                        loopWin(GNVList1,1000, function () {
+                            setTimeout(function(){
+                                map.setZoom(5);
+                                setTimeout(function () {
+                                    markerATL = new google.maps.Marker({map:map,animation:google.maps.Animation.BOUNCE, position:ATLLatLng});
+                                },1000);
+                                loopWin(ATLList1,1000, function(){
+//                                    var directionsService = new google.maps.DirectionsService;
+//                                    var directionsDisplay = new google.maps.DirectionsRenderer;
+//                                    displayDirection(directionsService, directionsDisplay);
+//                                    zoomTo(5,1000,function(){
+                                        loopWin(GNSList2, 1000,showMarkerText);
+//                                    });
+                                });
+                            },1000);
+                        });
+                    },1000);
+                },1000);
+            },GNVLatLng);
+        },1500);
+    }
+
+    function displayDirection(directionsService,directionsDisplay ){
+        directionsDisplay.setMap(map);
+        directionsService.route({
+            origin:"atlanta,ga" ,
+            destination:"gainesville,fl" ,
+            travelMode: google.maps.TravelMode.DRIVING
+        }, function(response, status) {
+            if (status === google.maps.DirectionsStatus.OK) {
+                directionsDisplay.setDirections(response);
+            } else {
+                window.alert('Directions request failed due to ' + status);
+            }
+        });
+    }
+
+    var markerText = [
+        {
+            lng : 80.050373,
+            lat : 39.924749
+        },
+        {
+            lng : 80.064171,
+            lat : 39.832612
+        },
+        {
+            lng : 80.064171,
+            lat : 39.747453
+        },
+        {
+            lng : 80.054973,
+            lat : 39.647966
+        },
+        {
+            lng : 80.031976,
+            lat : 39.566136
+        },
+        {
+            lng : 80.022777,
+            lat : 39.469951
+        },
+        {
+            lng : 79.990582,
+            lat : 39.366491
+        },
+        {
+            lng : 79.93539,
+            lat : 39.273603
+        },
+        {
+            lng : 79.875599,
+            lat : 39.216379
+        },
+        {
+            lng : 80.165356,
+            lat : 39.697727
+        },
+        {
+            lng : 80.289538,
+            lat : 39.70128
+        },
+        {
+            lng : 80.427518,
+            lat : 39.708386
+        },
+        {
+            lng : 80.537902,
+            lat : 39.708386
+        },
+        {
+            lng : 80.666683,
+            lat : 39.711938
+        },
+        {
+            lng : 80.795464,
+            lat : 39.715491
+        },
+        {
+            lng : 80.123962,
+            lat : 39.402184
+        },
+        {
+            lng : 80.271141,
+            lat : 39.420024
+        },
+        {
+            lng : 80.418319,
+            lat : 39.423591
+        },
+        {
+            lng : 80.570097,
+            lat : 39.423591
+        },
+        {
+            lng : 80.726474,
+            lat : 39.427159
+        },
+        {
+            lng : 80.873652,
+            lat : 39.434292
+        },
+        {
+            lng : 81.039228,
+            lat : 39.434292
+        },
+        {
+            lng : 80.501107,
+            lat : 40.105115
+        },
+        {
+            lng : 80.501107,
+            lat : 40.01676
+        },
+        {
+            lng : 80.501107,
+            lat : 39.921207
+        },
+        {
+            lng : 80.501107,
+            lat : 39.829066
+        },
+        {
+            lng : 80.496508,
+            lat : 39.623071
+        },
+        {
+            lng : 80.496508,
+            lat : 39.544773
+        },
+        {
+            lng : 80.491908,
+            lat : 39.370061
+        },
+        {
+            lng : 80.491908,
+            lat : 39.255725
+        },
+        {
+            lng : 80.491908,
+            lat : 39.166269
+        },
+        {
+            lng : 80.491908,
+            lat : 39.087453
+        },
+        {
+            lng : 79.820407,
+            lat : 39.015724
+        },
+        {
+            lng : 79.949188,
+            lat : 39.008548
+        },
+        {
+            lng : 80.100966,
+            lat : 39.030076
+        },
+        {
+            lng : 80.252744,
+            lat : 39.030076
+        },
+        {
+            lng : 80.41372,
+            lat : 39.030076
+        },
+        {
+            lng : 80.611491,
+            lat : 39.051598
+        },
+        {
+            lng : 80.744871,
+            lat : 39.05877
+        },
+        {
+            lng : 80.924245,
+            lat : 39.05877
+        },
+        {
+            lng : 81.089821,
+            lat : 39.073113
+        },
+        {
+            lng : 81.517558,
+            lat : 39.775851
+        },
+        {
+            lng : 81.517558,
+            lat : 39.708386
+        },
+        {
+            lng : 81.512958,
+            lat : 39.605284
+        },
+        {
+            lng : 81.512958,
+            lat : 39.480645
+        },
+        {
+            lng : 81.494561,
+            lat : 39.38434
+        },
+        {
+            lng : 81.494561,
+            lat : 39.262877
+        },
+        {
+            lng : 81.632541,
+            lat : 39.81488
+        },
+        {
+            lng : 81.738325,
+            lat : 39.811332
+        },
+        {
+            lng : 81.867106,
+            lat : 39.811332
+        },
+        {
+            lng : 82.018884,
+            lat : 39.804238
+        },
+        {
+            lng : 82.018884,
+            lat : 39.704833
+        },
+        {
+            lng : 82.023483,
+            lat : 39.598168
+        },
+        {
+            lng : 82.023483,
+            lat : 39.502027
+        },
+        {
+            lng : 82.028083,
+            lat : 39.395047
+        },
+        {
+            lng : 82.023483,
+            lat : 39.320062
+        },
+        {
+            lng : 82.018884,
+            lat : 39.24142
+        },
+        {
+            lng : 81.853308,
+            lat : 39.219957
+        },
+        {
+            lng : 81.696931,
+            lat : 39.230689
+        },
+        {
+            lng : 81.56815,
+            lat : 39.234266
+        },
+        {
+            lng : 81.63714,
+            lat : 39.530527
+        },
+        {
+            lng : 81.765921,
+            lat : 39.530527
+        },
+        {
+            lng : 81.903901,
+            lat : 39.530527
+        },
+        {
+            lng : 82.621395,
+            lat : 40.020297
+        },
+        {
+            lng : 82.621395,
+            lat : 39.921207
+        },
+        {
+            lng : 82.621395,
+            lat : 39.811332
+        },
+        {
+            lng : 82.621395,
+            lat : 39.708386
+        },
+        {
+            lng : 82.616796,
+            lat : 39.605284
+        },
+        {
+            lng : 82.621395,
+            lat : 39.459255
+        },
+        {
+            lng : 82.621395,
+            lat : 39.35935
+        },
+        {
+            lng : 82.607598,
+            lat : 39.24142
+        },
+        {
+            lng : 82.607598,
+            lat : 39.159108
+        },
+        {
+            lng : 82.483416,
+            lat : 39.647966
+        },
+        {
+            lng : 82.446621,
+            lat : 39.555455
+        },
+        {
+            lng : 82.391429,
+            lat : 39.469951
+        },
+        {
+            lng : 82.736379,
+            lat : 39.687067
+        },
+        {
+            lng : 82.79617,
+            lat : 39.59461
+        },
+        {
+            lng : 82.846762,
+            lat : 39.519841
+        },
+        {
+            lng : 82.984742,
+            lat : 39.829066
+        },
+        {
+            lng : 83.122722,
+            lat : 39.832612
+        },
+        {
+            lng : 83.260702,
+            lat : 39.836158
+        },
+        {
+            lng : 83.398681,
+            lat : 39.846795
+        },
+        {
+            lng : 83.486068,
+            lat : 39.860975
+        },
+        {
+            lng : 83.509065,
+            lat : 39.775851
+        },
+        {
+            lng : 83.495267,
+            lat : 39.694174
+        },
+        {
+            lng : 83.47227,
+            lat : 39.626628
+        },
+        {
+            lng : 82.966345,
+            lat : 39.544773
+        },
+        {
+            lng : 83.150318,
+            lat : 39.551895
+        },
+        {
+            lng : 83.283698,
+            lat : 39.551895
+        },
+        {
+            lng : 83.426277,
+            lat : 39.559016
+        },
+        {
+            lng : 83.578055,
+            lat : 39.559016
+        },
+        {
+            lng : 83.711435,
+            lat : 39.569696
+        },
+        {
+            lng : 83.2699,
+            lat : 40.140424
+        },
+        {
+            lng : 83.251503,
+            lat : 40.066253
+        },
+        {
+            lng : 83.237705,
+            lat : 39.97077
+        },
+        {
+            lng : 83.187112,
+            lat : 39.754553
+        },
+        {
+            lng : 83.145718,
+            lat : 39.658632
+        },
+        {
+            lng : 83.095126,
+            lat : 39.47708
+        },
+        {
+            lng : 83.072129,
+            lat : 39.337923
+        },
+        {
+            lng : 83.021537,
+            lat : 39.216379
+        },
+        {
+            lng : 82.99854,
+            lat : 39.159108
+        },
+        {
+            lng : 83.219308,
+            lat : 39.47708
+        },
+        {
+            lng : 83.315893,
+            lat : 39.387909
+        },
+        {
+            lng : 83.380284,
+            lat : 39.312917
+        },
+        {
+            lng : 83.47687,
+            lat : 39.259301
+        },
+        {
+            lng : 83.596452,
+            lat : 39.202065
+        },
+        {
+            lng : 84.714088,
+            lat : 40.249767
+        },
+        {
+            lng : 84.626701,
+            lat : 40.228618
+        },
+        {
+            lng : 84.49332,
+            lat : 40.179244
+        },
+        {
+            lng : 84.364539,
+            lat : 40.151014
+        },
+        {
+            lng : 84.240358,
+            lat : 40.112178
+        },
+        {
+            lng : 84.148371,
+            lat : 40.080387
+        },
+        {
+            lng : 84.111577,
+            lat : 39.992
+        },
+        {
+            lng : 84.139172,
+            lat : 39.914124
+        },
+        {
+            lng : 84.198964,
+            lat : 39.818426
+        },
+        {
+            lng : 84.014991,
+            lat : 39.690621
+        },
+        {
+            lng : 84.175967,
+            lat : 39.708386
+        },
+        {
+            lng : 84.318546,
+            lat : 39.751003
+        },
+        {
+            lng : 84.479522,
+            lat : 39.743902
+        },
+        {
+            lng : 84.612903,
+            lat : 39.772302
+        },
+        {
+            lng : 84.810674,
+            lat : 39.782949
+        },
+        {
+            lng : 84.976249,
+            lat : 39.807785
+        },
+        {
+            lng : 85.114229,
+            lat : 39.829066
+        },
+        {
+            lng : 84.589906,
+            lat : 40.101583
+        },
+        {
+            lng : 84.589906,
+            lat : 40.009687
+        },
+        {
+            lng : 84.589906,
+            lat : 39.892869
+        },
+        {
+            lng : 84.580708,
+            lat : 39.676405
+        },
+        {
+            lng : 84.571509,
+            lat : 39.519841
+        },
+        {
+            lng : 84.571509,
+            lat : 39.362921
+        },
+        {
+            lng : 84.576108,
+            lat : 39.255725
+        },
+        {
+            lng : 84.576108,
+            lat : 39.166269
+        },
+        {
+            lng : 84.465724,
+            lat : 39.64441
+        },
+        {
+            lng : 84.350741,
+            lat : 39.566136
+        },
+        {
+            lng : 84.240358,
+            lat : 39.480645
+        },
+        {
+            lng : 84.024189,
+            lat : 39.35578
+        },
+        {
+            lng : 84.139172,
+            lat : 39.427159
+        },
+        {
+            lng : 84.695691,
+            lat : 39.694174
+        },
+        {
+            lng : 84.815273,
+            lat : 39.605284
+        },
+        {
+            lng : 84.916458,
+            lat : 39.516279
+        },
+        {
+            lng : 85.036041,
+            lat : 39.452124
+        },
+        {
+            lng : 85.123428,
+            lat : 39.402184
+        },
+        {
+            lng : 85.224613,
+            lat : 39.352209
+        },
+        {
+            lng : 85.376391,
+            lat : 39.298623
+        },
+        {
+            lng : 85.500572,
+            lat : 39.373631
+        },
+        {
+            lng : 85.51437,
+            lat : 39.537651
+        },
+        {
+            lng : 85.348795,
+            lat : 39.555455
+        },
+        {
+            lng : 85.24761,
+            lat : 39.480645
+        },
+        {
+            lng : 81.407174,
+            lat : 40.573219
+        },
+        {
+            lng : 81.250797,
+            lat : 40.618798
+        },
+        {
+            lng : 81.103618,
+            lat : 40.639824
+        },
+        {
+            lng : 80.95644,
+            lat : 40.63632
+        },
+        {
+            lng : 80.901248,
+            lat : 40.562697
+        },
+        {
+            lng : 80.951841,
+            lat : 40.47143
+        },
+        {
+            lng : 81.057625,
+            lat : 40.383557
+        },
+        {
+            lng : 81.204804,
+            lat : 40.327257
+        },
+        {
+            lng : 81.388777,
+            lat : 40.306132
+        },
+        {
+            lng : 81.526756,
+            lat : 40.288523
+        },
+        {
+            lng : 81.696931,
+            lat : 40.277955
+        },
+        {
+            lng : 81.526756,
+            lat : 40.65734
+        },
+        {
+            lng : 81.563551,
+            lat : 40.804295
+        },
+        {
+            lng : 81.696931,
+            lat : 40.846222
+        },
+        {
+            lng : 81.830312,
+            lat : 40.83225
+        },
+        {
+            lng : 81.922298,
+            lat : 40.751849
+        },
+        {
+            lng : 81.926898,
+            lat : 40.653837
+        },
+        {
+            lng : 81.9131,
+            lat : 40.552172
+        },
+        {
+            lng : 81.885504,
+            lat : 40.48548
+        },
+        {
+            lng : 81.848709,
+            lat : 40.387074
+        },
+        {
+            lng : 81.793517,
+            lat : 40.313174
+        }
+    ];
+    function addMarker(long, lati) {
+        var addingmarker = new google.maps.Marker({map:map,animation:google.maps.Animation.DROP, position:{lat:lati,lng:long}, icon:'images/flag_red.ico'});
+    }
+
+    if (!Array.prototype.shuffle) {
+        Array.prototype.shuffle = function() {
+            for(var j, x, i = this.length; i; j = parseInt(Math.random() * i), x = this[--i], this[i] = this[j], this[j] = x);
+            return this;
+        };
+    }
+    markerText.shuffle();
+
+    function loopAddMarker(markers, callback) {
+        var i           = 0;
+        var len         = markers.length;
+        var callback    = callback || function() {};
+        var loop        = '';
+        function loopAddMarkerInner() {
+            if( i == len ) {
+                clearTimeout(loop);
+                callback();
+                return false;
+            }
+            addMarker(markers[i].lng, markers[i].lat);
+            i++;
+            loop = setTimeout(loopAddMarkerInner, 300);
+        }
+        loopAddMarkerInner();
+    }
+
+    function showMarkerText() {
+        map.panTo(new google.maps.LatLng(39.6307343,82.9586819));
+        map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
+        setTimeout(function () {
+            zoomTo(8, 1000, function () {
+                loopAddMarker(markerText, function () {
+                });
+            })
+        }, 1000);
+    }
+
+    function preLoadImages(imagesList, callback) {
+        var len     = imagesList.length;
+        var i       = 0;
+        var images  = {};
+        var callback = callback || function() {};
+        function loadImage() {
+            if( i == len ) {
+                callback();
+                return false;
+            }
+            images[i]           = new Image();
+            images[i].src       = imagesList[i];
+            i++;
+            loadImage();
+        }
+        loadImage();
+    }
+
+
+
+</script>
+
+</body>
+</html>
